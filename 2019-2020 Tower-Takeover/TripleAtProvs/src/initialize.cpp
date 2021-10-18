@@ -1,0 +1,79 @@
+#include "main.h"
+
+pros::Motor FR(frPort, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
+pros::Motor BR(brPort, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
+pros::Motor FL(flPort, E_MOTOR_GEARSET_18, false, E_MOTOR_ENCODER_DEGREES);
+pros::Motor BL(blPort, E_MOTOR_GEARSET_18, false, E_MOTOR_ENCODER_DEGREES);
+
+okapi::Motor RF(frPort, true, AbstractMotor::gearset::green, AbstractMotor::encoderUnits::counts);
+okapi::Motor RB(brPort, true, AbstractMotor::gearset::green, AbstractMotor::encoderUnits::counts);
+okapi::Motor LF(flPort, false, AbstractMotor::gearset::green, AbstractMotor::encoderUnits::counts);
+okapi::Motor LB(blPort, false, AbstractMotor::gearset::green, AbstractMotor::encoderUnits::counts);
+
+pros::Controller master (E_CONTROLLER_MASTER);
+pros::Controller partner (E_CONTROLLER_PARTNER);
+
+pros::Motor LiftM(liftPort, E_MOTOR_GEARSET_36, true, E_MOTOR_ENCODER_COUNTS);
+
+pros::Motor Intake1(intake1Port, E_MOTOR_GEARSET_18, false, E_MOTOR_ENCODER_DEGREES);
+pros::Motor Intake2(intake2Port, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
+
+pros::Motor TrayM(trayPort, E_MOTOR_GEARSET_36, true, E_MOTOR_ENCODER_COUNTS);
+
+bool multiPlace = false;
+bool multiArmUp = false;
+bool multiArmDown = false;
+bool slowOutTake = false;
+bool dunk = false;
+bool autoTopCube = false;
+
+bool lowTower = false;
+bool highTower = false;
+
+Base base;
+Lift lift;
+Tray tray;
+
+bool resetAngler = false;
+bool resetLift = false;
+
+bool placeLogic = false;
+bool traydown = false;
+bool skillsPlace = false;
+pros::ADIDigitalIn anglerLimit(anglerLimitP); //NEW ROBOT
+pros::ADIDigitalIn liftLimit(liftLimitP);
+pros::ADIDigitalIn placeBump(bumperP);
+pros::ADIAnalogIn placeLight(placeLightP);
+
+pros::ADIUltrasonic rightUltra (rightUltraP1, rightUltraP2);
+pros::ADIUltrasonic leftUltra (leftUltraP1, leftUltraP2);
+pros::Imu imu (imuPort);
+
+bool liftDown = false;
+bool newLiftDown = false;
+bool lightS = false;
+bool autoTrayUp = false;
+bool autoTrayDown = false;
+
+void initialize() {
+  imu.reset();
+  //multiPlace = false;
+  Task task(taskFunction, (void*)"PROS",
+    TASK_PRIORITY_DEFAULT,
+    TASK_STACK_DEPTH_DEFAULT,
+    "General Task"
+  );
+
+  pros::lcd::initialize();
+  pros::lcd::print(0, "Hello");
+
+  TrayM.tare_position();
+  LiftM.tare_position();
+  base.resetEncoder();
+
+  LiftM.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+  TrayM.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+  Intake1.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+  Intake2.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+
+}
